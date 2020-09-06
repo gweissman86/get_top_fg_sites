@@ -5,8 +5,9 @@ from datetime import datetime
 import concurrent.futures
 import url_parsers
 
-# filename = easygui.fileopenbox(msg='Select google analytics csv')
-filename = 'outputs/Analytics Frontier Group Exclude Internal Traffic Pages 20200701-20200731 (2).csv'
+filename = easygui.fileopenbox(msg='Select google analytics csv')
+# use below for testing
+# filename = 'outputs/Analytics Frontier Group Exclude Internal Traffic Pages 20200701-20200731 (2).csvAnalytics Frontier Group Exclude Internal Traffic Pages 20200701-20200731 (2).csv'
 
 
 fieldnames = ['Page', 'Pageviews', 'UniquePageviews', 'AvgTime', 'Entrances', 'BounceRate', 'PercentExit', 'PageValue']
