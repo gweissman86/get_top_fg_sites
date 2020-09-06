@@ -5,17 +5,17 @@ import csv
 from bs4 import BeautifulSoup
 import dateutil.parser
 from datetime import datetime
+import concurrent.futures
 
-filename = easygui.fileopenbox(msg='Select google analytics csv')
+# filename = easygui.fileopenbox(msg='Select google analytics csv')
+filename = 'Analytics Frontier Group Exclude Internal Traffic Pages 20200701-20200731 (2).csv'
+
 
 fieldnames = ['Page', 'Pageviews', 'UniquePageviews', 'AvgTime', 'Entrances', 'BounceRate', 'PercentExit', 'PageValue']
 
 with open(filename, newline='', encoding='utf-8') as csvfile:
     reader = csv.DictReader(csvfile, fieldnames = fieldnames)
     pages = list(reader)
-
-blogs = []
-reports = []
 
 def parse_report(page):
     try:
@@ -51,20 +51,33 @@ def parse_blog(page):
     except:
         return [page['Pageviews'], page['Page'], 'ERR', 'ERR']
 
-for page in pages:
-    if len(blogs) >= 10:
-        break
-    if '/blogs/' in page['Page']:
-        blogs.append(parse_blog(page))
-        print(page['Page'] + ' added')
+blogs = []
+reports = []
 
-for page in pages:
-    if len(reports) >= 10:
-        break
-    if '/reports/' in page['Page']:
-        reports.append(parse_report(page))
-        print(page['Page'] + ' added')
+# get blog info
+with concurrent.futures.ThreadPoolExecutor() as executor:
+    futures = []
+    for page in pages:
+        if len(futures) >= 10:
+            break
+        if '/blogs/' in page['Page']:
+            futures.append(executor.submit(parse_blog, page))
+            print(page['Page'] + ' added')
+    for future in concurrent.futures.as_completed(futures):
+        blogs.append(future.result())
 
+# get report info
+with concurrent.futures.ThreadPoolExecutor() as executor:
+    futures = []
+    for page in pages:
+        if len(futures) >= 10:
+            break
+        if '/reports/' in page['Page']:
+            futures.append(executor.submit(parse_report, page))
+            print(page['Page'] + ' added')
+    for future in concurrent.futures.as_completed(futures):
+        reports.append(future.result())
+    
 date = datetime.strptime(pages[3]['Page'][2:10], '%Y%m%d')
 date_str = date.strftime('%B %Y')
 
@@ -82,7 +95,8 @@ page_str += '\t'.join(['Views', 'Author', 'Date', 'Title']) + '\n'
 for report in reports:
     page_str += '\t'.join(report) + '\n'
 
-with open('top_pages.txt', 'w') as textfile:
+output = os.path.join('outputs', 'top_pages.txt')
+with open(output, 'w') as textfile:
     textfile.write(page_str)
 
-os.startfile('top_pages.txt')
+os.startfile(output)
