@@ -3,7 +3,7 @@ import os
 import csv
 from datetime import datetime
 import concurrent.futures
-import url_parsers
+import grab_fg_info
 
 filename = easygui.fileopenbox(msg='Select google analytics csv')
 # use below for testing
@@ -26,7 +26,7 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
         if len(futures) >= 10:
             break
         if '/blogs/' in page['Page']:
-            futures.append(executor.submit(url_parsers.parse_blog, page))
+            futures.append(executor.submit(grab_fg_info.parse_blog, page))
             print(page['Page'] + ' added')
     for future in concurrent.futures.as_completed(futures):
         blogs.append(future.result())
@@ -38,7 +38,7 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
         if len(futures) >= 10:
             break
         if '/reports/' in page['Page']:
-            futures.append(executor.submit(url_parsers.parse_report, page))
+            futures.append(executor.submit(grab_fg_info.parse_report, page))
             print(page['Page'] + ' added')
     for future in concurrent.futures.as_completed(futures):
         reports.append(future.result())
