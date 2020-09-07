@@ -43,6 +43,11 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
     for future in concurrent.futures.as_completed(futures):
         reports.append(future.result())
     
+# sort blogs and reports from most to least pageviews
+blogs.sort(key=lambda item: int(item[0]), reverse=True)
+reports.sort(key=lambda item: int(item[0]), reverse=True)
+
+# get date for printing at top of page
 date = datetime.strptime(pages[3]['Page'][2:10], '%Y%m%d')
 date_str = date.strftime('%B %Y')
 
@@ -60,7 +65,8 @@ page_str += '\t'.join(['Views', 'Author', 'Date', 'Title']) + '\n'
 for report in reports:
     page_str += '\t'.join(report) + '\n'
 
-output = os.path.join('outputs', 'top_pages.txt')
+timestamp = datetime.today().strftime('%Y%m%d%H%M')
+output = os.path.join('outputs', f'top_pages_{timestamp}.txt')
 with open(output, 'w') as textfile:
     textfile.write(page_str)
 
