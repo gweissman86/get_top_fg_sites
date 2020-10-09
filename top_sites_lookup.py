@@ -4,6 +4,9 @@ import csv
 from datetime import datetime
 import concurrent.futures
 import grab_fg_info
+import locale
+locale.setlocale( locale.LC_ALL, 'en_US.UTF-8' ) 
+
 
 filename = easygui.fileopenbox(msg='Select google analytics csv')
 # use below for testing
@@ -44,8 +47,8 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
         reports.append(future.result())
     
 # sort blogs and reports from most to least pageviews
-blogs.sort(key=lambda item: int(item[0]), reverse=True)
-reports.sort(key=lambda item: int(item[0]), reverse=True)
+blogs.sort(key=lambda item: locale.atoi(item[0]), reverse=True)
+reports.sort(key=lambda item: locale.atoi(item[0]), reverse=True)
 
 # get date for printing at top of page
 date = datetime.strptime(pages[3]['Page'][2:10], '%Y%m%d')
